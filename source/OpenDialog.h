@@ -1,5 +1,5 @@
 // =============================================================================
-//  qrv.h
+//  OpenDialog.h
 //
 //  MIT License
 //
@@ -24,56 +24,75 @@
 //  SOFTWARE.
 // =============================================================================
 /*!
-  \file     qrv.h
+  \file     OpenDialog.h
   \author   Dairoku Sekiguchi
   \version  1.0.0
-  \date     2020/11/23
+  \date     2020/12/06
   \brief
 */
 
 #pragma once
 
 // Includes --------------------------------------------------------------------
-#include <QtWidgets/QMainWindow>
-#include "ui_qrv.h"
-#include "ibc/qt/image_data.h"
-#include "ibc/qt/image_scroll_area.h"
+#include <QDialog>
+#include "ui_OpenDialog.h"
 
 // -----------------------------------------------------------------------------
 // qpcvWindow class
 // -----------------------------------------------------------------------------
-class qrvWindow : public QMainWindow
+class OpenDialog : public QDialog
 {
 Q_OBJECT
 
 public:
   // Constructors and Destructor -----------------------------------------------
-  qrvWindow(QWidget *parent = Q_NULLPTR);
+  OpenDialog(QWidget *parent = nullptr, Qt::WindowFlags f = Qt::WindowFlags())
+    : QDialog(parent, f)
+  {
+    initUI();
+  }
 
 protected:
   // Member variables ----------------------------------------------------------
-  ibc::qt::ImageScrollArea *mScrollArea;
-  ibc::qt::ImageData        mImageData;
+  Ui_OpenDialog mOpenDialogUI;
 
   // Member functions ----------------------------------------------------------
-  void createTestPattern(
-          ibc::qt::ImageData *inImageData,
-          int inPattern,
-          ibc::image::ImageType::PixelType inPixelType,
-          ibc::image::ImageType::DataType inDataType,
-          int inWidth, int inHeight,
-          ibc::image::ColorMap::ColorMapIndex inColorMapIndex,
-          int inColorMapMultiNum,
-          double inGain, double inOffsset);
-  void fillTestPattern(ibc::qt::ImageData *inImageData, int inPattern);
+  void  initUI()
+  {
+    mOpenDialogUI.setupUi(this);
+    mOpenDialogUI.mDataType_Combo->addItem("Unsigned");
+    mOpenDialogUI.mDataType_Combo->addItem("Signed");
+    //
+    mOpenDialogUI.mBitWidth_Combo->addItem("8");
+    mOpenDialogUI.mBitWidth_Combo->addItem("16");
+    //
+    mOpenDialogUI.mPackedType_Combo->addItem("None");
+    mOpenDialogUI.mPackedType_Combo->addItem("Packed");
+    //
+    mOpenDialogUI.mColorModel_Combo->addItem("Mono");
+    mOpenDialogUI.mColorModel_Combo->addItem("RGB");
+    //
+    mOpenDialogUI.mChTotalNum_Combo->setEnabled(false);
+    mOpenDialogUI.mChIndex0_SpinBox->setEnabled(false);
+    mOpenDialogUI.mChIndex1_SpinBox->setEnabled(false);
+    mOpenDialogUI.mChIndex2_SpinBox->setEnabled(false);
+    //
+    mOpenDialogUI.mPlannerFormat_Check->setEnabled(false);
+    //
+    mOpenDialogUI.mLineSize_Check->setEnabled(false);
+    mOpenDialogUI.mLineSize_SpinBox->setEnabled(false);
+    //
+    mOpenDialogUI.mPlaneSize_Check->setEnabled(false);
+    mOpenDialogUI.mPlaneSize_SpinBox->setEnabled(false);
 
-private:
-  // Member variables ----------------------------------------------------------
-  Ui::qrvClass mUI;
+    connect(mOpenDialogUI.mWidth_SpinBox,
+            static_cast<void(QSpinBox::*)(int)>(&QSpinBox::valueChanged),
+            this,
+            [=](int i)
+            {
+              printf("%d\n", i);
+            });
 
-private slots:
-  void on_actionOpen_triggered(void);
-  void on_actionQuit_triggered(void);
-  //
-
+  /*printf("height: %s\n", openDialogUI.lineEdit_height->text().toStdString().c_str());*/
+  }
 };

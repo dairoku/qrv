@@ -17,6 +17,7 @@ INCLUDEPATH += \
 HEADERS += \
   ../libibc/include/ibc/qt/image_view.h \
   ../libibc/include/ibc/qt/image_scroll_area.h \
+  OpenDialog.h \
   qrv.h
 
 SOURCES += \
@@ -24,4 +25,6 @@ SOURCES += \
   main.cpp
 
 FORMS += \
-  qrv.ui
+  qrv.ui \
+  OpenDialog.ui
+

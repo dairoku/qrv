@@ -33,7 +33,7 @@
 
 // Includes --------------------------------------------------------------------
 #include "qrv.h"
-
+#include "OpenDialog.h"
 
 // -----------------------------------------------------------------------------
 // qrvWindow
@@ -72,14 +72,10 @@ void qrvWindow::on_actionOpen_triggered(void)
     "",
     tr("RAW File (*.raw);;All Files (*)"));*/
 
-  /*QDialog dialog(this);
-  Ui_OpenDialog openDialogUI;
-  openDialogUI.setupUi(&dialog);
-
+  OpenDialog dialog(this);
   if (dialog.exec() == 0)
     return;
 
-  printf("height: %s\n", openDialogUI.lineEdit_height->text().toStdString().c_str());*/
 }
 
 // -----------------------------------------------------------------------------
