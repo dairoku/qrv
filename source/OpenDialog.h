@@ -35,6 +35,7 @@
 
 // Includes --------------------------------------------------------------------
 #include <QDialog>
+#include "ibc/image/image.h"
 #include "ui_OpenDialog.h"
 
 // -----------------------------------------------------------------------------
@@ -51,9 +52,26 @@ public:
   {
     initUI();
   }
+  // ---------------------------------------------------------------------------
+  // setImageFormat
+  // ---------------------------------------------------------------------------
+  void  setImageFormat(const ibc::image::ImageFormat &inImageFormat)
+  {
+    mImageFormat = inImageFormat;
+    updateUI();
+  }
+  // ---------------------------------------------------------------------------
+  // getImageFormat
+  // ---------------------------------------------------------------------------
+  ibc::image::ImageFormat  getImageFormat()
+  {
+    updateImageFormat();
+    return mImageFormat;
+  }
 
 protected:
   // Member variables ----------------------------------------------------------
+  ibc::image::ImageFormat   mImageFormat;
   Ui_OpenDialog mOpenDialogUI;
 
   // Member functions ----------------------------------------------------------
@@ -90,9 +108,74 @@ protected:
             this,
             [=](int i)
             {
-              printf("%d\n", i);
+              UNUSED(i);
+              //printf("%d\n", i);
             });
-
-  /*printf("height: %s\n", openDialogUI.lineEdit_height->text().toStdString().c_str());*/
+    connect(mOpenDialogUI.buttonBox->button(QDialogButtonBox::Ok),
+            static_cast<void(QPushButton::*)(bool)>(&QPushButton::clicked),
+            this,
+            [=](bool checked)
+            {
+              UNUSED(checked);
+              updateImageFormat();
+            });
   }
+
+  void  updateUI()
+  {
+    if (mImageFormat.mType.isSigned() == false)
+      mOpenDialogUI.mDataType_Combo->setCurrentIndex(0);
+    else
+      mOpenDialogUI.mDataType_Combo->setCurrentIndex(1);
+
+    if (mImageFormat.mType.sizeOfData() == 1)
+      mOpenDialogUI.mBitWidth_Combo->setCurrentIndex(0);
+    else
+      mOpenDialogUI.mBitWidth_Combo->setCurrentIndex(1);
+
+    if (mImageFormat.mType.isPacked() == false)
+      mOpenDialogUI.mPackedType_Combo->setCurrentIndex(0);
+    else
+      mOpenDialogUI.mPackedType_Combo->setCurrentIndex(1);
+
+    if (mImageFormat.mType.mPixelType == ibc::image::ImageType::PIXEL_TYPE_MONO)
+      mOpenDialogUI.mColorModel_Combo->setCurrentIndex(0);
+    else
+      mOpenDialogUI.mColorModel_Combo->setCurrentIndex(1);
+
+    mOpenDialogUI.mWidth_SpinBox->setValue(mImageFormat.mWidth);
+    mOpenDialogUI.mHeight_SpinBox->setValue(mImageFormat.mHeight);
+  }
+
+  void  updateImageFormat()
+  {
+    if (mOpenDialogUI.mBitWidth_Combo->currentIndex() == 0)
+    {
+      if (mOpenDialogUI.mDataType_Combo->currentIndex() == 0)
+        mImageFormat.mType.mDataType = ibc::image::ImageType::DATA_TYPE_8BIT;
+      else
+        mImageFormat.mType.mDataType = ibc::image::ImageType::DATA_TYPE_8BIT_SIGNED;
+    }
+    else
+    {
+      if (mOpenDialogUI.mDataType_Combo->currentIndex() == 0)
+        mImageFormat.mType.mDataType = ibc::image::ImageType::DATA_TYPE_16BIT;
+      else
+        mImageFormat.mType.mDataType = ibc::image::ImageType::DATA_TYPE_16BIT_SIGNED;
+    }
+
+    if (mOpenDialogUI.mPackedType_Combo->currentIndex() == 0)
+      mImageFormat.mType.mBufferType = ibc::image::ImageType::BUFFER_TYPE_PIXEL_ALIGNED;
+    else
+      mImageFormat.mType.mBufferType = ibc::image::ImageType::BUFFER_TYPE_PIXEL_PACKED;
+
+    if (mOpenDialogUI.mColorModel_Combo->currentIndex() == 0)
+      mImageFormat.mType.mPixelType = ibc::image::ImageType::PIXEL_TYPE_MONO;
+    else
+      mImageFormat.mType.mPixelType = ibc::image::ImageType::PIXEL_TYPE_RGB;
+
+    mImageFormat.mWidth = mOpenDialogUI.mWidth_SpinBox->value();
+    mImageFormat.mHeight = mOpenDialogUI.mHeight_SpinBox->value();
+  }
+
 };

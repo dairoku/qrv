@@ -39,10 +39,12 @@
 // -----------------------------------------------------------------------------
 int main(int argc, char *argv[])
 {
+#ifdef _WIN32
   FILE  *std_stream, *err_stream;
   ::AllocConsole();
   freopen_s(&std_stream, "CONOUT$", "a", stdout);
   freopen_s(&err_stream, "CONOUT$", "a", stderr);
+#endif
 
   QApplication a(argc, argv);
   qrvWindow w;

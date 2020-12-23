@@ -36,6 +36,7 @@
 // Includes --------------------------------------------------------------------
 #include <QtWidgets/QMainWindow>
 #include "ui_qrv.h"
+#include "ibc/image/image.h"
 #include "ibc/qt/image_data.h"
 #include "ibc/qt/image_scroll_area.h"
 
@@ -52,20 +53,13 @@ public:
 
 protected:
   // Member variables ----------------------------------------------------------
-  ibc::qt::ImageScrollArea *mScrollArea;
+  ibc::qt::ImageView        *mImageView;
+  ibc::qt::ImageScrollArea  *mScrollArea;
   ibc::qt::ImageData        mImageData;
+  ibc::image::ImageFormat   mImageFormat;
 
   // Member functions ----------------------------------------------------------
-  void createTestPattern(
-          ibc::qt::ImageData *inImageData,
-          int inPattern,
-          ibc::image::ImageType::PixelType inPixelType,
-          ibc::image::ImageType::DataType inDataType,
-          int inWidth, int inHeight,
-          ibc::image::ColorMap::ColorMapIndex inColorMapIndex,
-          int inColorMapMultiNum,
-          double inGain, double inOffsset);
-  void fillTestPattern(ibc::qt::ImageData *inImageData, int inPattern);
+  bool openFile(const QString &fileName, const ibc::image::ImageFormat &inImageFormat);
 
 private:
   // Member variables ----------------------------------------------------------

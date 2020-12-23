@@ -32,6 +32,9 @@
 */
 
 // Includes --------------------------------------------------------------------
+#include <QFile>
+#include <QFileInfo>
+#include "ibc/image/utils/test_pattern.h"
 #include "qrv.h"
 #include "OpenDialog.h"
 
@@ -41,25 +44,88 @@
 qrvWindow::qrvWindow(QWidget *parent)
   : QMainWindow(parent)
 {
-  ibc::qt::ImageView  *imageView = new ibc::qt::ImageView();
-  mScrollArea = new ibc::qt::ImageScrollArea(imageView);
+  mImageView = new ibc::qt::ImageView();
+  mScrollArea = new ibc::qt::ImageScrollArea(mImageView);
 
-  createTestPattern(&mImageData,
+  mImageFormat.mType.set(ibc::image::ImageType::PIXEL_TYPE_MONO,
+                         ibc::image::ImageType::BUFFER_TYPE_PIXEL_ALIGNED,
+                         ibc::image::ImageType::DATA_TYPE_8BIT);
+  mImageFormat.set(512, 512);
+
+  ibc::image::utils::TestPattern::prepareTestPattern(
+                    &mImageData,
                     0,
                     ibc::image::ImageType::PIXEL_TYPE_MONO,
                     ibc::image::ImageType::DATA_TYPE_8BIT,
-                    4096, 2048,
+                    4096, 4096,
                     ibc::image::ColorMap::CMIndex_GrayScale,
                     1,
                     1.0, 0.0);
   mImageData.markAsImageModified();
-  imageView->setImageDataPtr(&mImageData);
+  mImageView->setImageDataPtr(&mImageData);
 
   mUI.setupUi(this);
   setCentralWidget(mScrollArea);
 
-  connect(mUI.actionZoom_In, SIGNAL(triggered()), imageView, SLOT(slot_zoomIn()));
-  connect(mUI.actionZoom_Out, SIGNAL(triggered()), imageView, SLOT(slot_zoomOut()));
+  connect(mUI.actionZoom_In, SIGNAL(triggered()), mImageView, SLOT(slot_zoomIn()));
+  connect(mUI.actionZoom_Out, SIGNAL(triggered()), mImageView, SLOT(slot_zoomOut()));
+}
+
+// -----------------------------------------------------------------------------
+// openFile
+// -----------------------------------------------------------------------------
+bool  qrvWindow::openFile(
+        const QString &fileName,
+        const ibc::image::ImageFormat &inImageFormat)
+{
+  mImageData.allocateImageBuffer(inImageFormat);
+
+  QFileInfo fileInfo(fileName);
+  if (fileInfo.isReadable() == false)
+  {
+    printf("Can't open file\n");
+    return false;
+  }
+
+  size_t fileSize = fileInfo.size();
+  if (fileSize == 0)
+  {
+    printf("File size is zero \n");
+    return false;
+  }
+  unsigned char *dataBuf = new unsigned char[fileSize];
+  if (dataBuf == NULL)
+  {
+    printf("Can't allocate data buffer: \n");
+    return false;
+  }
+
+  QFile file(fileName);
+  if (file.open(QIODevice::ReadOnly) == false)
+  {
+    printf("Can't open file \n");
+    return false;
+  }
+  QDataStream fileStream(&file);
+  if (fileStream.readRawData((char *)dataBuf, fileSize) != (int )fileSize)
+  {
+    printf("Can't read file \n");
+    return false;
+  }
+  file.close();
+
+  size_t  copySize = mImageData.getImageBufferSize();
+  if (copySize > fileSize)
+    copySize = fileSize;
+  memcpy(mImageData.getImageBufferPtr(), dataBuf, copySize);
+
+  //mImageData.mActiveConverter->setColorMapIndex(colorMapIndex, multiMap);
+  //mImageData.mActiveConverter->setGain(mGain);
+  //mImageData.mActiveConverter->setOffset(mOffset);
+  mImageData.markAsImageModified();
+  mImageView->setImageDataPtr(&mImageData);
+
+  return true;
 }
 
 // -----------------------------------------------------------------------------
@@ -67,15 +133,21 @@ qrvWindow::qrvWindow(QWidget *parent)
 // -----------------------------------------------------------------------------
 void qrvWindow::on_actionOpen_triggered(void)
 {
-/*  QString fileName = QFileDialog::getOpenFileName(this,
+  QString fileName = QFileDialog::getOpenFileName(
+    this,
     tr("Open RAW file"),
     "",
-    tr("RAW File (*.raw);;All Files (*)"));*/
-
-  OpenDialog dialog(this);
-  if (dialog.exec() == 0)
+    tr("RAW File (*.raw);;All Files (*)"));
+  if (fileName.isEmpty())
     return;
 
+  OpenDialog dialog(this);
+  dialog.setImageFormat(mImageFormat);
+  if (dialog.exec() == 0)
+    return;
+  mImageFormat = dialog.getImageFormat();
+
+  openFile(fileName, mImageFormat);
 }
 
 // -----------------------------------------------------------------------------
@@ -86,88 +158,3 @@ void qrvWindow::on_actionQuit_triggered(void)
   close();
 }
 
-// -----------------------------------------------------------------------------
-// createTestPattern
-// -----------------------------------------------------------------------------
-void qrvWindow::createTestPattern(
-    ibc::qt::ImageData *inImageData,
-    int inPattern,
-    ibc::image::ImageType::PixelType inPixelType,
-    ibc::image::ImageType::DataType inDataType,
-    int inWidth, int inHeight,
-    ibc::image::ColorMap::ColorMapIndex inColorMapIndex,
-    int inColorMapMultiNum,
-    double inGain, double inOffsset)
-{
-  // Create ImageData here
-  ibc::image::ImageType   imageType(inPixelType,
-                                    ibc::image::ImageType::BUFFER_TYPE_PIXEL_ALIGNED,
-                                    inDataType);
-  ibc::image::ImageFormat imageFormat(imageType, inWidth, inHeight);
-  inImageData->allocateImageBuffer(imageFormat);
-  inImageData->mActiveConverter->setColorMapIndex(inColorMapIndex, inColorMapMultiNum);
-  inImageData->mActiveConverter->setGain(inGain);
-  inImageData->mActiveConverter->setOffset(inOffsset);
-
-  fillTestPattern(inImageData, inPattern);
-}
-
-// -----------------------------------------------------------------------------
-// fillTestPattern
-// -----------------------------------------------------------------------------
-void qrvWindow::fillTestPattern(ibc::qt::ImageData *inImageData, int inPattern)
-{
-  if (inImageData->getImageType().mPixelType == ibc::image::ImageType::PIXEL_TYPE_MONO &&
-      inImageData->getImageType().mDataType  == ibc::image::ImageType::DATA_TYPE_8BIT)
-  {
-    unsigned char *bufPtr = (unsigned char *)inImageData->getImageBufferPtr();
-    for (int y = 0; y < inImageData->getHeight(); y++)
-      for (int x = 0; x < inImageData->getWidth(); x++)
-      {
-        switch (inPattern)
-        {
-          case 0:
-            *bufPtr = (unsigned char)(x ^ y);
-            break;
-          case 1:
-            *bufPtr = (unsigned char)(x & 0xFF);
-            break;
-          case 2:
-            *bufPtr = (unsigned char)(y & 0xFF);
-            break;
-          default:
-          //case 3:
-            *bufPtr = (unsigned char)((x+y) & 0xFF);
-            break;
-        }
-        bufPtr++;
-      }
-    return;
-  }
-  if (inImageData->getImageType().mPixelType == ibc::image::ImageType::PIXEL_TYPE_MONO &&
-      inImageData->getImageType().mDataType  == ibc::image::ImageType::DATA_TYPE_16BIT)
-  {
-    unsigned short *bufPtr = (unsigned short *)inImageData->getImageBufferPtr();
-    for (int y = 0; y < inImageData->getHeight(); y++)
-      for (int x = 0; x < inImageData->getWidth(); x++)
-      {
-        switch (inPattern)
-        {
-          case 0:
-            *bufPtr = (unsigned short)(x ^ y);
-            break;
-          case 1:
-            *bufPtr = (unsigned short)(x & 0xFFFF);
-            break;
-          case 2:
-            *bufPtr = (unsigned short)(y & 0xFFFF);
-            break;
-          case 3:
-            *bufPtr = (unsigned short)((x+y) & 0xFFFF);
-            break;
-        }
-        bufPtr++;
-      }
-    return;
-  }
-}
