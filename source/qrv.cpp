@@ -146,6 +146,7 @@ void qrvWindow::on_actionOpen_triggered(void)
   if (dialog.exec() == 0)
     return;
   mImageFormat = dialog.getImageFormat();
+  mImageFormat.dump();
 
   openFile(fileName, mImageFormat);
 }
