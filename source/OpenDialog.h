@@ -78,6 +78,15 @@ protected:
   void  initUI()
   {
     mOpenDialogUI.setupUi(this);
+    //
+    mOpenDialogUI.mImageType_Combo->addItem("Mono",       QVariant(ibc::image::ImageType::PIXEL_TYPE_MONO));
+    mOpenDialogUI.mImageType_Combo->addItem("RGB",        QVariant(ibc::image::ImageType::PIXEL_TYPE_RGB));
+    mOpenDialogUI.mImageType_Combo->addItem("BGR",        QVariant(ibc::image::ImageType::PIXEL_TYPE_BGR));
+    mOpenDialogUI.mImageType_Combo->addItem("BAYER_GBRG", QVariant(ibc::image::ImageType::PIXEL_TYPE_BAYER_GBRG));
+    mOpenDialogUI.mImageType_Combo->addItem("BAYER_GRBG", QVariant(ibc::image::ImageType::PIXEL_TYPE_BAYER_GRBG));
+    mOpenDialogUI.mImageType_Combo->addItem("BAYER_BGGR", QVariant(ibc::image::ImageType::PIXEL_TYPE_BAYER_BGGR));
+    mOpenDialogUI.mImageType_Combo->addItem("BAYER_RGGB", QVariant(ibc::image::ImageType::PIXEL_TYPE_BAYER_RGGB));
+    //
     mOpenDialogUI.mDataType_Combo->addItem("Unsigned");
     mOpenDialogUI.mDataType_Combo->addItem("Signed");
     //
@@ -87,13 +96,10 @@ protected:
     mOpenDialogUI.mPackedType_Combo->addItem("None");
     mOpenDialogUI.mPackedType_Combo->addItem("Packed");
     //
-    mOpenDialogUI.mColorModel_Combo->addItem("Mono");
-    mOpenDialogUI.mColorModel_Combo->addItem("RGB");
-    //
-    mOpenDialogUI.mChTotalNum_Combo->setEnabled(false);
-    mOpenDialogUI.mChIndex0_SpinBox->setEnabled(false);
-    mOpenDialogUI.mChIndex1_SpinBox->setEnabled(false);
-    mOpenDialogUI.mChIndex2_SpinBox->setEnabled(false);
+    //mOpenDialogUI.mChTotalNum_Combo->setEnabled(false);
+    //mOpenDialogUI.mChIndex0_SpinBox->setEnabled(false);
+    //mOpenDialogUI.mChIndex1_SpinBox->setEnabled(false);
+    //mOpenDialogUI.mChIndex2_SpinBox->setEnabled(false);
     //
     mOpenDialogUI.mPlannerFormat_Check->setEnabled(false);
     //
@@ -123,6 +129,11 @@ protected:
 
   void  updateUI()
   {
+    if (mImageFormat.mType.mPixelType == ibc::image::ImageType::PIXEL_TYPE_MONO)
+      mOpenDialogUI.mImageType_Combo->setCurrentIndex(0);
+    else
+      mOpenDialogUI.mImageType_Combo->setCurrentIndex(1);
+
     if (mImageFormat.mType.isSigned() == false)
       mOpenDialogUI.mDataType_Combo->setCurrentIndex(0);
     else
@@ -138,17 +149,16 @@ protected:
     else
       mOpenDialogUI.mPackedType_Combo->setCurrentIndex(1);
 
-    if (mImageFormat.mType.mPixelType == ibc::image::ImageType::PIXEL_TYPE_MONO)
-      mOpenDialogUI.mColorModel_Combo->setCurrentIndex(0);
-    else
-      mOpenDialogUI.mColorModel_Combo->setCurrentIndex(1);
-
     mOpenDialogUI.mWidth_SpinBox->setValue(mImageFormat.mWidth);
     mOpenDialogUI.mHeight_SpinBox->setValue(mImageFormat.mHeight);
   }
 
   void  updateImageFormat()
   {
+    ibc::image::ImageType::PixelType  pixelType;
+    pixelType = (ibc::image::ImageType::PixelType )mOpenDialogUI.mImageType_Combo->currentData().value<int>();
+    mImageFormat.mType.setPixelType(pixelType);
+
     if (mOpenDialogUI.mBitWidth_Combo->currentIndex() == 0)
     {
       if (mOpenDialogUI.mDataType_Combo->currentIndex() == 0)
@@ -169,13 +179,10 @@ protected:
     else
       mImageFormat.mType.mBufferType = ibc::image::ImageType::BUFFER_TYPE_PIXEL_PACKED;
 
-    if (mOpenDialogUI.mColorModel_Combo->currentIndex() == 0)
-      mImageFormat.mType.mPixelType = ibc::image::ImageType::PIXEL_TYPE_MONO;
-    else
-      mImageFormat.mType.mPixelType = ibc::image::ImageType::PIXEL_TYPE_RGB;
-
-    mImageFormat.mWidth = mOpenDialogUI.mWidth_SpinBox->value();
-    mImageFormat.mHeight = mOpenDialogUI.mHeight_SpinBox->value();
+    mImageFormat.set(
+      mOpenDialogUI.mWidth_SpinBox->value(),  // width
+      mOpenDialogUI.mHeight_SpinBox->value()  // height
+    );
   }
 
 };
