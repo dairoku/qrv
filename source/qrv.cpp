@@ -47,28 +47,41 @@ qrvWindow::qrvWindow(QWidget *parent)
   mImageView = new ibc::qt::ImageView();
   mScrollArea = new ibc::qt::ImageScrollArea(mImageView);
 
+  // Initial format (for opendialog)
   mImageFormat.mType.set(ibc::image::ImageType::PIXEL_TYPE_MONO,
                          ibc::image::ImageType::BUFFER_TYPE_PIXEL_ALIGNED,
                          ibc::image::ImageType::DATA_TYPE_8BIT);
   mImageFormat.set(512, 512);
-
-  ibc::image::utils::TestPattern::prepareTestPattern(
-                    &mImageData,
-                    0,
-                    ibc::image::ImageType::PIXEL_TYPE_MONO,
-                    ibc::image::ImageType::DATA_TYPE_8BIT,
-                    4096, 4096,
-                    ibc::image::ColorMap::CMIndex_GrayScale,
-                    1,
-                    1.0, 0.0);
-  mImageData.markAsImageModified();
-  mImageView->setImageDataPtr(&mImageData);
 
   mUI.setupUi(this);
   setCentralWidget(mScrollArea);
 
   connect(mUI.actionZoom_In, SIGNAL(triggered()), mImageView, SLOT(slot_zoomIn()));
   connect(mUI.actionZoom_Out, SIGNAL(triggered()), mImageView, SLOT(slot_zoomOut()));
+}
+
+// -----------------------------------------------------------------------------
+// doRawFileOpenDialog
+// -----------------------------------------------------------------------------
+bool qrvWindow::doRawFileOpenDialog(void)
+{
+  QString fileName = QFileDialog::getOpenFileName(
+    this,
+    tr("Open RAW file"),
+    "",
+    tr("RAW File (*.raw);;All Files (*)"));
+  if (fileName.isEmpty())
+    return false;
+
+  OpenDialog dialog(this);
+  dialog.setImageFormat(mImageFormat);
+  dialog.adjustSize();
+  if (dialog.exec() == 0)
+    return false;
+  mImageFormat = dialog.getImageFormat();
+  mImageFormat.dump();
+
+  return openFile(fileName, mImageFormat);
 }
 
 // -----------------------------------------------------------------------------
@@ -107,7 +120,7 @@ bool  qrvWindow::openFile(
     return false;
   }
   QDataStream fileStream(&file);
-  if (fileStream.readRawData((char *)dataBuf, fileSize) != (int )fileSize)
+  if ((size_t )fileStream.readRawData((char *)dataBuf, (int )fileSize) != fileSize)
   {
     printf("Can't read file \n");
     return false;
@@ -129,6 +142,30 @@ bool  qrvWindow::openFile(
 }
 
 // -----------------------------------------------------------------------------
+// testPattern
+// -----------------------------------------------------------------------------
+bool  qrvWindow::testPattern(
+      int inPattern,
+      const ibc::image::ImageFormat &inImageFormat,
+      ibc::image::ColorMap::ColorMapIndex inColorMapIndex,
+      int inColorMapMultiNum,
+      double inGain, double inOffsset)
+{
+  ibc::image::utils::TestPattern::allocateBufferAndFill(
+                    &mImageData,
+                    inPattern,
+                    inImageFormat.mType.mPixelType,
+                    inImageFormat.mType.mDataType,
+                    inImageFormat.mWidth, inImageFormat.mHeight,
+                    inColorMapIndex,
+                    inColorMapMultiNum,
+                    inGain, inOffsset);
+  mImageData.markAsImageModified();
+  mImageView->setImageDataPtr(&mImageData);
+  return true;
+}
+
+// -----------------------------------------------------------------------------
 // on_actionOpen_triggered
 // -----------------------------------------------------------------------------
 void qrvWindow::on_actionOpen_triggered(void)
@@ -143,6 +180,7 @@ void qrvWindow::on_actionOpen_triggered(void)
 
   OpenDialog dialog(this);
   dialog.setImageFormat(mImageFormat);
+  dialog.adjustSize();
   if (dialog.exec() == 0)
     return;
   mImageFormat = dialog.getImageFormat();
@@ -158,4 +196,3 @@ void qrvWindow::on_actionQuit_triggered(void)
 {
   close();
 }
-

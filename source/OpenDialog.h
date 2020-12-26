@@ -79,29 +79,26 @@ protected:
   {
     mOpenDialogUI.setupUi(this);
     //
-    mOpenDialogUI.mImageType_Combo->addItem("Mono",       QVariant(ibc::image::ImageType::PIXEL_TYPE_MONO));
-    mOpenDialogUI.mImageType_Combo->addItem("RGB",        QVariant(ibc::image::ImageType::PIXEL_TYPE_RGB));
-    mOpenDialogUI.mImageType_Combo->addItem("BGR",        QVariant(ibc::image::ImageType::PIXEL_TYPE_BGR));
-    mOpenDialogUI.mImageType_Combo->addItem("BAYER_GBRG", QVariant(ibc::image::ImageType::PIXEL_TYPE_BAYER_GBRG));
-    mOpenDialogUI.mImageType_Combo->addItem("BAYER_GRBG", QVariant(ibc::image::ImageType::PIXEL_TYPE_BAYER_GRBG));
-    mOpenDialogUI.mImageType_Combo->addItem("BAYER_BGGR", QVariant(ibc::image::ImageType::PIXEL_TYPE_BAYER_BGGR));
-    mOpenDialogUI.mImageType_Combo->addItem("BAYER_RGGB", QVariant(ibc::image::ImageType::PIXEL_TYPE_BAYER_RGGB));
+    mOpenDialogUI.mPixelType_Combo->addItem("Mono",       QVariant(ibc::image::ImageType::PIXEL_TYPE_MONO));
+    mOpenDialogUI.mPixelType_Combo->addItem("RGB",        QVariant(ibc::image::ImageType::PIXEL_TYPE_RGB));
+    mOpenDialogUI.mPixelType_Combo->addItem("BGR",        QVariant(ibc::image::ImageType::PIXEL_TYPE_BGR));
+    mOpenDialogUI.mPixelType_Combo->addItem("BAYER_GBRG", QVariant(ibc::image::ImageType::PIXEL_TYPE_BAYER_GBRG));
+    mOpenDialogUI.mPixelType_Combo->addItem("BAYER_GRBG", QVariant(ibc::image::ImageType::PIXEL_TYPE_BAYER_GRBG));
+    mOpenDialogUI.mPixelType_Combo->addItem("BAYER_BGGR", QVariant(ibc::image::ImageType::PIXEL_TYPE_BAYER_BGGR));
+    mOpenDialogUI.mPixelType_Combo->addItem("BAYER_RGGB", QVariant(ibc::image::ImageType::PIXEL_TYPE_BAYER_RGGB));
     //
-    mOpenDialogUI.mDataType_Combo->addItem("Unsigned");
-    mOpenDialogUI.mDataType_Combo->addItem("Signed");
-    //
-    mOpenDialogUI.mBitWidth_Combo->addItem("8");
-    mOpenDialogUI.mBitWidth_Combo->addItem("16");
-    //
-    mOpenDialogUI.mPackedType_Combo->addItem("None");
-    mOpenDialogUI.mPackedType_Combo->addItem("Packed");
+    mOpenDialogUI.mBufferType_Combo->addItem("Aligned",   QVariant(ibc::image::ImageType::BUFFER_TYPE_PIXEL_ALIGNED));
+    mOpenDialogUI.mBufferType_Combo->addItem("Packed",    QVariant(ibc::image::ImageType::BUFFER_TYPE_PIXEL_PACKED));
+
+    mOpenDialogUI.mDataType_Combo->addItem("8bit",        QVariant(ibc::image::ImageType::DATA_TYPE_8BIT));
+    mOpenDialogUI.mDataType_Combo->addItem("16bit",       QVariant(ibc::image::ImageType::DATA_TYPE_16BIT));
     //
     //mOpenDialogUI.mChTotalNum_Combo->setEnabled(false);
     //mOpenDialogUI.mChIndex0_SpinBox->setEnabled(false);
     //mOpenDialogUI.mChIndex1_SpinBox->setEnabled(false);
     //mOpenDialogUI.mChIndex2_SpinBox->setEnabled(false);
     //
-    mOpenDialogUI.mPlannerFormat_Check->setEnabled(false);
+    //mOpenDialogUI.mPlannerFormat_Check->setEnabled(false);
     //
     mOpenDialogUI.mLineSize_Check->setEnabled(false);
     mOpenDialogUI.mLineSize_SpinBox->setEnabled(false);
@@ -115,7 +112,6 @@ protected:
             [=](int i)
             {
               UNUSED(i);
-              //printf("%d\n", i);
             });
     connect(mOpenDialogUI.buttonBox->button(QDialogButtonBox::Ok),
             static_cast<void(QPushButton::*)(bool)>(&QPushButton::clicked),
@@ -129,25 +125,17 @@ protected:
 
   void  updateUI()
   {
-    if (mImageFormat.mType.mPixelType == ibc::image::ImageType::PIXEL_TYPE_MONO)
-      mOpenDialogUI.mImageType_Combo->setCurrentIndex(0);
-    else
-      mOpenDialogUI.mImageType_Combo->setCurrentIndex(1);
+    mOpenDialogUI.mPixelType_Combo->setCurrentIndex(
+      mOpenDialogUI.mPixelType_Combo->findData(
+        mImageFormat.mType.mPixelType));
 
-    if (mImageFormat.mType.isSigned() == false)
-      mOpenDialogUI.mDataType_Combo->setCurrentIndex(0);
-    else
-      mOpenDialogUI.mDataType_Combo->setCurrentIndex(1);
+    mOpenDialogUI.mBufferType_Combo->setCurrentIndex(
+      mOpenDialogUI.mBufferType_Combo->findData(
+        mImageFormat.mType.mBufferType));
 
-    if (mImageFormat.mType.sizeOfData() == 1)
-      mOpenDialogUI.mBitWidth_Combo->setCurrentIndex(0);
-    else
-      mOpenDialogUI.mBitWidth_Combo->setCurrentIndex(1);
-
-    if (mImageFormat.mType.isPacked() == false)
-      mOpenDialogUI.mPackedType_Combo->setCurrentIndex(0);
-    else
-      mOpenDialogUI.mPackedType_Combo->setCurrentIndex(1);
+    mOpenDialogUI.mDataType_Combo->setCurrentIndex(
+      mOpenDialogUI.mDataType_Combo->findData(
+        mImageFormat.mType.mDataType));
 
     mOpenDialogUI.mWidth_SpinBox->setValue(mImageFormat.mWidth);
     mOpenDialogUI.mHeight_SpinBox->setValue(mImageFormat.mHeight);
@@ -156,28 +144,16 @@ protected:
   void  updateImageFormat()
   {
     ibc::image::ImageType::PixelType  pixelType;
-    pixelType = (ibc::image::ImageType::PixelType )mOpenDialogUI.mImageType_Combo->currentData().value<int>();
+    pixelType = (ibc::image::ImageType::PixelType )mOpenDialogUI.mPixelType_Combo->currentData().value<int>();
     mImageFormat.mType.setPixelType(pixelType);
 
-    if (mOpenDialogUI.mBitWidth_Combo->currentIndex() == 0)
-    {
-      if (mOpenDialogUI.mDataType_Combo->currentIndex() == 0)
-        mImageFormat.mType.mDataType = ibc::image::ImageType::DATA_TYPE_8BIT;
-      else
-        mImageFormat.mType.mDataType = ibc::image::ImageType::DATA_TYPE_8BIT_SIGNED;
-    }
-    else
-    {
-      if (mOpenDialogUI.mDataType_Combo->currentIndex() == 0)
-        mImageFormat.mType.mDataType = ibc::image::ImageType::DATA_TYPE_16BIT;
-      else
-        mImageFormat.mType.mDataType = ibc::image::ImageType::DATA_TYPE_16BIT_SIGNED;
-    }
+    ibc::image::ImageType::BufferType  bufferType;
+    bufferType = (ibc::image::ImageType::BufferType )mOpenDialogUI.mBufferType_Combo->currentData().value<int>();
+    mImageFormat.mType.setBufferType(bufferType);
 
-    if (mOpenDialogUI.mPackedType_Combo->currentIndex() == 0)
-      mImageFormat.mType.mBufferType = ibc::image::ImageType::BUFFER_TYPE_PIXEL_ALIGNED;
-    else
-      mImageFormat.mType.mBufferType = ibc::image::ImageType::BUFFER_TYPE_PIXEL_PACKED;
+    ibc::image::ImageType::DataType  dataType;
+    dataType = (ibc::image::ImageType::DataType )mOpenDialogUI.mDataType_Combo->currentData().value<int>();
+    mImageFormat.mType.setDataType(dataType);
 
     mImageFormat.set(
       mOpenDialogUI.mWidth_SpinBox->value(),  // width

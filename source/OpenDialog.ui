@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>923</width>
-    <height>590</height>
+    <width>624</width>
+    <height>226</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -21,7 +21,7 @@
        <item row="1" column="0">
         <widget class="QLabel" name="label">
          <property name="text">
-          <string>Data Type</string>
+          <string>Buffer Type</string>
          </property>
          <property name="alignment">
           <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
@@ -31,7 +31,7 @@
        <item row="3" column="0">
         <widget class="QLabel" name="label_3">
          <property name="text">
-          <string>Packed Type</string>
+          <string>File Size</string>
          </property>
          <property name="alignment">
           <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
@@ -41,7 +41,7 @@
        <item row="2" column="0">
         <widget class="QLabel" name="label_2">
          <property name="text">
-          <string>Bit width</string>
+          <string>Data Type</string>
          </property>
          <property name="alignment">
           <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
@@ -49,14 +49,14 @@
         </widget>
        </item>
        <item row="1" column="1">
-        <widget class="QComboBox" name="mDataType_Combo">
+        <widget class="QComboBox" name="mBufferType_Combo">
          <property name="editable">
           <bool>false</bool>
          </property>
         </widget>
        </item>
        <item row="2" column="1">
-        <widget class="QComboBox" name="mBitWidth_Combo">
+        <widget class="QComboBox" name="mDataType_Combo">
          <property name="editable">
           <bool>false</bool>
          </property>
@@ -65,22 +65,15 @@
        <item row="0" column="0">
         <widget class="QLabel" name="label_4">
          <property name="text">
-          <string>Image Type</string>
+          <string>Pixel Type</string>
          </property>
          <property name="alignment">
           <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
          </property>
         </widget>
        </item>
-       <item row="3" column="1">
-        <widget class="QComboBox" name="mPackedType_Combo">
-         <property name="editable">
-          <bool>false</bool>
-         </property>
-        </widget>
-       </item>
        <item row="0" column="1">
-        <widget class="QComboBox" name="mImageType_Combo">
+        <widget class="QComboBox" name="mPixelType_Combo">
          <property name="editable">
           <bool>false</bool>
          </property>
@@ -89,17 +82,30 @@
        <item row="4" column="0">
         <widget class="QLabel" name="label_7">
          <property name="text">
-          <string>Planner Format</string>
+          <string>Data Size</string>
          </property>
          <property name="alignment">
           <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
          </property>
         </widget>
        </item>
-       <item row="4" column="1">
-        <widget class="QCheckBox" name="mPlannerFormat_Check">
+       <item row="3" column="1">
+        <widget class="QLabel" name="mFileSize_Label">
          <property name="text">
-          <string>Yes</string>
+          <string>0 Bytes</string>
+         </property>
+         <property name="alignment">
+          <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter</set>
+         </property>
+        </widget>
+       </item>
+       <item row="4" column="1">
+        <widget class="QLabel" name="mDataSize_Label">
+         <property name="text">
+          <string>0 Bytes</string>
+         </property>
+         <property name="alignment">
+          <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter</set>
          </property>
         </widget>
        </item>
@@ -107,20 +113,10 @@
      </item>
      <item>
       <layout class="QGridLayout" name="gridLayout_3">
-       <item row="4" column="1">
-        <widget class="QSpinBox" name="mLineSize_SpinBox">
-         <property name="maximum">
-          <number>2147483647</number>
-         </property>
-        </widget>
-       </item>
-       <item row="3" column="0">
-        <widget class="QLabel" name="label_14">
+       <item row="5" column="1">
+        <widget class="QCheckBox" name="mPlaneSize_Check">
          <property name="text">
-          <string>Line Size</string>
-         </property>
-         <property name="alignment">
-          <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+          <string>Manual</string>
          </property>
         </widget>
        </item>
@@ -134,74 +130,10 @@
          </property>
         </widget>
        </item>
-       <item row="4" column="2">
-        <widget class="QLabel" name="label_15">
-         <property name="text">
-          <string>Bytes</string>
-         </property>
-         <property name="alignment">
-          <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter</set>
-         </property>
-        </widget>
-       </item>
-       <item row="2" column="2">
-        <widget class="QLabel" name="label_13">
-         <property name="text">
-          <string>Bytes</string>
-         </property>
-         <property name="alignment">
-          <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter</set>
-         </property>
-        </widget>
-       </item>
-       <item row="2" column="0">
-        <widget class="QLabel" name="label_10">
-         <property name="text">
-          <string>Header Size</string>
-         </property>
-         <property name="alignment">
-          <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
-         </property>
-        </widget>
-       </item>
        <item row="1" column="2">
         <widget class="QPushButton" name="mHeight_Button">
          <property name="text">
           <string>Pixels</string>
-         </property>
-        </widget>
-       </item>
-       <item row="1" column="0">
-        <widget class="QLabel" name="label_9">
-         <property name="text">
-          <string>Height</string>
-         </property>
-         <property name="alignment">
-          <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
-         </property>
-        </widget>
-       </item>
-       <item row="0" column="1">
-        <widget class="QSpinBox" name="mWidth_SpinBox">
-         <property name="maximum">
-          <number>2147483647</number>
-         </property>
-        </widget>
-       </item>
-       <item row="6" column="1">
-        <widget class="QSpinBox" name="mPlaneSize_SpinBox">
-         <property name="maximum">
-          <number>2147483647</number>
-         </property>
-        </widget>
-       </item>
-       <item row="5" column="0">
-        <widget class="QLabel" name="label_16">
-         <property name="text">
-          <string>Plane Size</string>
-         </property>
-         <property name="alignment">
-          <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
          </property>
         </widget>
        </item>
@@ -215,13 +147,6 @@
          </property>
         </widget>
        </item>
-       <item row="5" column="1">
-        <widget class="QCheckBox" name="mPlaneSize_Check">
-         <property name="text">
-          <string>Manual</string>
-         </property>
-        </widget>
-       </item>
        <item row="2" column="1">
         <widget class="QSpinBox" name="mHeaderSize_SpinBox">
          <property name="maximum">
@@ -229,30 +154,74 @@
          </property>
         </widget>
        </item>
-       <item row="1" column="1">
-        <widget class="QSpinBox" name="mHeight_SpinBox">
-         <property name="maximum">
-          <number>2147483647</number>
+       <item row="2" column="2">
+        <widget class="QLabel" name="label_13">
+         <property name="text">
+          <string>Bytes</string>
+         </property>
+         <property name="alignment">
+          <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter</set>
          </property>
         </widget>
        </item>
-       <item row="8" column="0">
-        <widget class="QLabel" name="label_20">
+       <item row="5" column="0">
+        <widget class="QLabel" name="label_16">
          <property name="text">
-          <string>Data Size</string>
+          <string>Plane Size</string>
          </property>
          <property name="alignment">
           <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
          </property>
         </widget>
        </item>
-       <item row="8" column="1">
-        <widget class="QLabel" name="mDataSize_Label">
+       <item row="3" column="0">
+        <widget class="QLabel" name="label_14">
          <property name="text">
-          <string>0 Bytes</string>
+          <string>Line Size</string>
+         </property>
+         <property name="alignment">
+          <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+         </property>
+        </widget>
+       </item>
+       <item row="6" column="1">
+        <widget class="QSpinBox" name="mPlaneSize_SpinBox">
+         <property name="maximum">
+          <number>2147483647</number>
+         </property>
+        </widget>
+       </item>
+       <item row="0" column="1">
+        <widget class="QSpinBox" name="mWidth_SpinBox">
+         <property name="maximum">
+          <number>2147483647</number>
+         </property>
+        </widget>
+       </item>
+       <item row="4" column="1">
+        <widget class="QSpinBox" name="mLineSize_SpinBox">
+         <property name="maximum">
+          <number>2147483647</number>
+         </property>
+        </widget>
+       </item>
+       <item row="4" column="2">
+        <widget class="QLabel" name="label_15">
+         <property name="text">
+          <string>Bytes</string>
          </property>
          <property name="alignment">
           <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter</set>
+         </property>
+        </widget>
+       </item>
+       <item row="1" column="0">
+        <widget class="QLabel" name="label_9">
+         <property name="text">
+          <string>Height</string>
+         </property>
+         <property name="alignment">
+          <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
          </property>
         </widget>
        </item>
@@ -270,23 +239,20 @@
          </property>
         </widget>
        </item>
-       <item row="7" column="0">
-        <widget class="QLabel" name="label_18">
+       <item row="2" column="0">
+        <widget class="QLabel" name="label_10">
          <property name="text">
-          <string>File Size</string>
+          <string>Header Size</string>
          </property>
          <property name="alignment">
           <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
          </property>
         </widget>
        </item>
-       <item row="7" column="1">
-        <widget class="QLabel" name="mFileSize_Label">
-         <property name="text">
-          <string>0 Bytes</string>
-         </property>
-         <property name="alignment">
-          <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter</set>
+       <item row="1" column="1">
+        <widget class="QSpinBox" name="mHeight_SpinBox">
+         <property name="maximum">
+          <number>2147483647</number>
          </property>
         </widget>
        </item>

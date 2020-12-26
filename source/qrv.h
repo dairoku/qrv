@@ -51,15 +51,22 @@ public:
   // Constructors and Destructor -----------------------------------------------
   qrvWindow(QWidget *parent = Q_NULLPTR);
 
+  // Member functions ----------------------------------------------------------
+  bool doRawFileOpenDialog();
+  bool openFile(const QString &fileName, const ibc::image::ImageFormat &inImageFormat);
+  bool testPattern(
+      int inPattern,
+      const ibc::image::ImageFormat &inImageFormat,
+      ibc::image::ColorMap::ColorMapIndex inColorMapIndex = ibc::image::ColorMap::CMIndex_NOT_SPECIFIED,
+      int inColorMapMultiNum = 1,
+      double inGain = 1.0, double inOffsset = 0);
+
 protected:
   // Member variables ----------------------------------------------------------
   ibc::qt::ImageView        *mImageView;
   ibc::qt::ImageScrollArea  *mScrollArea;
   ibc::qt::ImageData        mImageData;
   ibc::image::ImageFormat   mImageFormat;
-
-  // Member functions ----------------------------------------------------------
-  bool openFile(const QString &fileName, const ibc::image::ImageFormat &inImageFormat);
 
 private:
   // Member variables ----------------------------------------------------------
@@ -69,5 +76,4 @@ private slots:
   void on_actionOpen_triggered(void);
   void on_actionQuit_triggered(void);
   //
-
 };
