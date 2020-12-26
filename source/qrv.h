@@ -36,6 +36,7 @@
 // Includes --------------------------------------------------------------------
 #include <QtWidgets/QMainWindow>
 #include "ui_qrv.h"
+#include "ibc/image/image.h"
 #include "ibc/qt/image_data.h"
 #include "ibc/qt/image_scroll_area.h"
 
@@ -50,22 +51,22 @@ public:
   // Constructors and Destructor -----------------------------------------------
   qrvWindow(QWidget *parent = Q_NULLPTR);
 
+  // Member functions ----------------------------------------------------------
+  bool doRawFileOpenDialog();
+  bool openFile(const QString &fileName, const ibc::image::ImageFormat &inImageFormat);
+  bool testPattern(
+      int inPattern,
+      const ibc::image::ImageFormat &inImageFormat,
+      ibc::image::ColorMap::ColorMapIndex inColorMapIndex = ibc::image::ColorMap::CMIndex_NOT_SPECIFIED,
+      int inColorMapMultiNum = 1,
+      double inGain = 1.0, double inOffsset = 0);
+
 protected:
   // Member variables ----------------------------------------------------------
-  ibc::qt::ImageScrollArea *mScrollArea;
+  ibc::qt::ImageView        *mImageView;
+  ibc::qt::ImageScrollArea  *mScrollArea;
   ibc::qt::ImageData        mImageData;
-
-  // Member functions ----------------------------------------------------------
-  void createTestPattern(
-          ibc::qt::ImageData *inImageData,
-          int inPattern,
-          ibc::image::ImageType::PixelType inPixelType,
-          ibc::image::ImageType::DataType inDataType,
-          int inWidth, int inHeight,
-          ibc::image::ColorMap::ColorMapIndex inColorMapIndex,
-          int inColorMapMultiNum,
-          double inGain, double inOffsset);
-  void fillTestPattern(ibc::qt::ImageData *inImageData, int inPattern);
+  ibc::image::ImageFormat   mImageFormat;
 
 private:
   // Member variables ----------------------------------------------------------
@@ -74,4 +75,5 @@ private:
 private slots:
   void on_actionOpen_triggered(void);
   void on_actionQuit_triggered(void);
+  //
 };
