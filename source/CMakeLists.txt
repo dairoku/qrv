@@ -3,6 +3,8 @@ project(qrv)
 
 set(CMAKE_CXX_STANDARD 20)
 
+add_subdirectory(../libibc libibc_build)
+
 include_directories(../libibc/include)
 set(CMAKE_AUTOMOC ON)
 set(CMAKE_AUTORCC ON)
