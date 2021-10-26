@@ -8,3 +8,6 @@ ui_*.h
 
 # Outputdir
 output/
+build/
+cmake-build-debug/
+.idea/
