@@ -3,25 +3,14 @@
 //
 //  MIT License
 //
-//  Copyright (c) 2020 Dairoku Sekiguchi
+//  Written in 2020 by Dairoku Sekiguchi (sekiguchi at acm dot org)
 //
-//  Permission is hereby granted, free of charge, to any person obtaining a copy
-//  of this software and associated documentation files (the "Software"), to deal
-//  in the Software without restriction, including without limitation the rights
-//  to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-//  copies of the Software, and to permit persons to whom the Software is
-//  furnished to do so, subject to the following conditions:
+//  To the extent possible under law, the author(s) have dedicated all copyright
+//  and related and neighboring rights to this software to the public domain worldwide.
+//  This software is distributed without any warranty.
 //
-//  The above copyright notice and this permission notice shall be included in all
-//  copies or substantial portions of the Software.
-//
-//  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-//  IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-//  FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-//  AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-//  LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-//  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
-//  SOFTWARE.
+//  You should have received a copy of the CC0 Public Domain Dedication along with
+//  this software. If not, see <http://creativecommons.org/publicdomain/zero/1.0/>.
 // =============================================================================
 /*!
   \file     main.cpp
@@ -39,14 +28,6 @@
 // -----------------------------------------------------------------------------
 int main(int argc, char *argv[])
 {
-//#ifdef _WIN32
-#if 0
-  FILE  *std_stream, *err_stream;
-  ::AllocConsole();
-  freopen_s(&std_stream, "CONOUT$", "a", stdout);
-  freopen_s(&err_stream, "CONOUT$", "a", stderr);
-#endif
-
   QApplication app(argc, argv);
   QApplication::setApplicationName("qrv");
   QApplication::setApplicationVersion("v0.0.1");
@@ -122,19 +103,16 @@ int main(int argc, char *argv[])
   parser.process(app);
   const QStringList args = parser.positionalArguments();
   if (parser.isSet("help"))
-  {
     parser.showHelp(0);
-    return 0;
-  }
+    //The above code will exit the program
 
   qrvWindow win;
-  if (args.size() != 0 || parser.isSet("debug"))
+  if (!args.empty() || parser.isSet("debug"))
   {
-    if (parser.isSet("width") == false || parser.isSet("height") == false)
-    {
+    if (!parser.isSet("width") || !parser.isSet("height"))
       parser.showHelp(-1);
-      return -1;
-    }
+      //The above code will exit the program
+
     ibc::image::ImageFormat imageFormat;
     imageFormat.mType.set(
       ibc::image::ImageType::stringToPixelType(parser.value("pixel").toStdString().c_str()),
@@ -149,27 +127,27 @@ int main(int argc, char *argv[])
       colorMapIndex =
         ibc::image::ColorMap::stringToColorMapIndex(
           parser.value("colormap").toStdString().c_str(), colorMapIndex);
-      if (win.testPattern(
-            parser.value("debug").toUInt(),
-            imageFormat,
-            colorMapIndex,
-            parser.value("multimap").toUInt(),
-            parser.value("gain").toDouble(),
-            parser.value("offset").toDouble()) == false)
+      if (!win.testPattern(
+              (int )parser.value("debug").toUInt(),
+              imageFormat,
+              colorMapIndex,
+              (int )parser.value("multimap").toUInt(),
+              parser.value("gain").toDouble(),
+              parser.value("offset").toDouble()))
         return -1;
     }
     else
     {
-      if (win.openFile(args[0], imageFormat) == false)
+      if (!win.openFile(args[0], imageFormat))
         return -1;
     }
   }
   else
   {
-  if (win.doRawFileOpenDialog() == false)
+  if (!win.doRawFileOpenDialog())
     return -1;
   }
 
   win.show();
-  return app.exec();
+  return QApplication::exec();
 }
